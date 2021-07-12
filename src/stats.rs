@@ -24,3 +24,28 @@ pub fn compute_stats(buffer: &std::vec::Vec<f64>) -> (f64, usize, f64, f64, f64,
 
     (mean, buffer.len(), median, std_dev, accum, min, max) // Return value
 }
+
+#[cfg(test)]
+mod test {
+
+    use super::*;
+
+    #[test]
+    fn simple_test_of_truth() {
+        assert_eq!(2 + 2, 4);
+    }
+
+    #[test]
+    fn test_compute_stats() {
+        let buffer = [1.0, 2.0, 3.0, 4.0, 5.0].to_vec();
+        let (mean, count, median, std_dev, accum, min, max) = compute_stats(&buffer);
+
+        assert_eq!(mean, 3.0);
+        assert_eq!(count, 5);
+        assert_eq!(median, 3.0);
+        assert_eq!(std_dev - 1.581138 < 0.00001, true);
+        assert_eq!(accum, 15.0);
+        assert_eq!(min, 1.0);
+        assert_eq!(max, 5.0);
+    }
+}

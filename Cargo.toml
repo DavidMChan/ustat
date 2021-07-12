@@ -1,8 +1,11 @@
 [package]
+authors = ["David Chan <david@iridescent.io>"]
+categories = ["command-line-utilities"]
+description = "A (small) tool for computing statistics on XSV files."
+homepage = "https://github.com/DavidMChan/ustat"
 name = "ustat"
 version = "0.1.0"
 edition = "2018"
-authors = ["David Chan <david@iridescent.io>"]
 
 [dependencies]
 argparse = "0.2.2"
