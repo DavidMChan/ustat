@@ -1,5 +1,5 @@
 # ustat
-A micro-statistics program (like ministat) written in Rust which computes the sum, mean, median, min, max and standard deviation of a set of input files
+A micro-statistics program (like ministat) written in Rust which computes the sum, mean, median, min, max and standard deviation of a set of input files.
 
 ```
 Usage:
