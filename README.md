@@ -3,15 +3,20 @@ A micro-statistics program (like ministat) written in Rust which computes the su
 
 ```
 Usage:
-  ./target/release/ustat [OPTIONS]
+  ustat [OPTIONS] [FILE ...]
 
-Compute statistics for the given input file. 
+Compute statistics for the given input file.
+
+Positional arguments:
+  file                  The input file(s) to compute statistics for (Use stdin
+                        if not specified)
 
 Optional arguments:
   -h,--help             Show this help message and exit
-  -i,--input INPUT      The input file to compute statistics for. (Use stdin if not specified)
-  -c,--column COLUMN    The column to extract data from (Starts from 0, default is 0)
+  -c,--column COLUMN    The column to extract data from (Default: 0, runs from
+                        0 to ...)
   -d,--delimiter DELIMITER
-                        The text delimiter to use between columns. (Default: ,)
-  -s,--skip-header      Skip the first line of the input file. (Default: False)
+                        The text delimiter to use between columns (Default:
+                        ',')
+  -s,--skip-header      Skip the first line of the input file (Default: False)
 ```

@@ -5,7 +5,7 @@
 
 extern crate argparse;
 
-use argparse::{ArgumentParser, Store, StoreTrue};
+use argparse::{ArgumentParser, Collect, Store, StoreTrue};
 use log::warn;
 use log::{Level, Metadata, Record};
 use log::{LevelFilter, SetLoggerError};
@@ -141,45 +141,47 @@ fn main() {
     init().expect("Unable to initialize logger");
 
     // Setup the argument parsing
-    let mut input_file = "".to_string();
+    // let mut input_file = "".to_string();
     let mut column = 0;
     let mut delimiter = ",".to_string();
     let mut skip_header = false;
+    let mut input_files: std::vec::Vec<String> = std::vec::Vec::new();
     {
         let mut ap = ArgumentParser::new();
-        ap.set_description(
-            "Compute statistics for the given input file. (Use stdin if not specified)",
-        );
-        ap.refer(&mut input_file).add_option(
-            &["-i", "--input"],
-            Store,
-            "The input file to compute statistics for.",
-        );
+        ap.set_description("Compute statistics for the given input file.");
         ap.refer(&mut column).add_option(
             &["-c", "--column"],
             Store,
-            "The column to extract data from.",
+            "The column to extract data from (Default: 0, runs from 0 to ...)",
         );
         ap.refer(&mut delimiter).add_option(
             &["-d", "--delimiter"],
             Store,
-            "The text delimiter to use between columns.",
+            "The text delimiter to use between columns (Default: ',')",
         );
         ap.refer(&mut skip_header).add_option(
             &["-s", "--skip-header"],
             StoreTrue,
-            "Skip the first line of the input file.",
+            "Skip the first line of the input file (Default: False)",
+        );
+        ap.refer(&mut input_files).add_argument(
+            "file",
+            Collect,
+            "The input file(s) to compute statistics for (Use stdin if not specified)",
         );
         ap.parse_args_or_exit();
     }
 
+    // Load the data from the input files
     let mut buffer = std::vec::Vec::new();
-    if input_file.is_empty() {
+    if input_files.len() > 0 {
+        for input_file in input_files.iter() {
+            read_from_file(&input_file, &mut buffer, &delimiter, column, skip_header)
+                .expect(&format!("Error reading from file {}", input_file));
+        }
+    } else {
         read_from_stdin(&mut buffer, &delimiter, column, skip_header)
             .expect("Error reading from stdin");
-    } else {
-        read_from_file(&input_file, &mut buffer, &delimiter, column, skip_header)
-            .expect(&format!("Error reading from file {}", input_file));
     }
 
     if buffer.len() == 0 {
