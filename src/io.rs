@@ -19,6 +19,33 @@ macro_rules! skip_fail {
     };
 }
 
+fn _read_line(
+    line: &str,
+    buffer: &mut std::vec::Vec<f64>,
+    re: &regex::Regex,
+    column: usize,
+) -> io::Result<()> {
+    // Read and parse a single line from the XSV
+
+    let vec = re
+        .find_iter(&line)
+        .filter_map(|strs| Some(strs.as_str()))
+        .collect::<Vec<&str>>();
+    if vec.len() < column {
+        return Err(io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "Not enough columns in line.",
+        ));
+    }
+    buffer.push(
+        vec[column]
+            .parse::<f64>()
+            .expect(&format!("Failed to parse column value: {}", vec[column])[..]),
+    );
+
+    Ok(())
+}
+
 pub fn read_from_stdin(
     buffer: &mut std::vec::Vec<f64>,
     delimiter: &String,
@@ -31,22 +58,8 @@ pub fn read_from_stdin(
     // Read the elements into the buffer
     let stdin = io::stdin();
     for line in stdin.lock().lines().skip(if skip_header { 1 } else { 0 }) {
-        let read_line = skip_fail!(line);
-        let vec = re
-            .find_iter(&read_line)
-            .filter_map(|strs| Some(strs.as_str()))
-            .collect::<Vec<&str>>();
-        if vec.len() < column {
-            return Err(io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "Not enough columns in line.",
-            ));
-        }
-        buffer.push(
-            vec[column]
-                .parse::<f64>()
-                .expect(&format!("Failed to parse column value: {}", vec[column])[..]),
-        );
+        let ln = skip_fail!(line);
+        _read_line(&ln, buffer, &re, column).unwrap();
     }
 
     Ok(())
@@ -66,22 +79,8 @@ pub fn read_from_file(
     let file = File::open(file_path)?;
     let reader = BufReader::new(file);
     for line in reader.lines().skip(if skip_header { 1 } else { 0 }) {
-        let read_line = skip_fail!(line);
-        let vec = re
-            .find_iter(&read_line)
-            .filter_map(|strs| Some(strs.as_str()))
-            .collect::<Vec<&str>>();
-        if vec.len() < column {
-            return Err(io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "Not enough columns in line.",
-            ));
-        }
-        buffer.push(
-            vec[column]
-                .parse::<f64>()
-                .expect(&format!("Failed to parse column value: {}", vec[column])[..]),
-        );
+        let ln = skip_fail!(line);
+        _read_line(&ln, buffer, &re, column).unwrap();
     }
 
     Ok(())
