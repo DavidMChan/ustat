@@ -3,9 +3,14 @@ authors = ["David Chan <david@iridescent.io>"]
 categories = ["command-line-utilities"]
 description = "A (small) tool for computing statistics on XSV files."
 homepage = "https://github.com/DavidMChan/ustat"
+repository = "https://github.com/DavidMChan/ustat"
 name = "ustat"
 version = "0.1.0"
 edition = "2018"
+keywords = ["stats", "csv", "lightweight"]
+license = "MIT"
+include = ["src/**/*", "Cargo.toml"]
+
 
 [dependencies]
 argparse = "0.2.2"
