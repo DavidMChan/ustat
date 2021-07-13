@@ -9,7 +9,7 @@ version = "0.1.0"
 edition = "2018"
 keywords = ["stats", "csv", "lightweight"]
 license = "MIT"
-include = ["src/**/*", "Cargo.toml"]
+include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
 
 
 [dependencies]
