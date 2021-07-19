@@ -46,7 +46,7 @@ pub fn compute_anova(all_buffers: &Vec<Vec<f64>>) {
     let df_d = data.len() - all_buffers.len();
     let a_mst = a_sst / df_n as f64;
     let a_mse = a_sse / df_d as f64;
-    let a_f = a_mst / a_mse;
+    let a_f = a_mst / a_mse + 1e-8;
 
     // Compute the critical-value
     let f = FisherSnedecor::new(df_n as f64, df_d as f64).unwrap();
@@ -54,7 +54,8 @@ pub fn compute_anova(all_buffers: &Vec<Vec<f64>>) {
     let mut min_p = 0.0;
     let mut max_p = 1.0;
     let mut current_p = 0.5;
-    while max_p - min_p > 0.000001 {
+    let mut iterations = 0;
+    while max_p - min_p > 0.000001 && iterations < 100 {
         if f.inverse_cdf(current_p) > a_f {
             // We can increase the probability
             min_p = current_p;
@@ -62,6 +63,7 @@ pub fn compute_anova(all_buffers: &Vec<Vec<f64>>) {
             max_p = current_p;
         }
         current_p = (max_p - min_p) / 2.0;
+        iterations += 1;
     }
 
     println!(
