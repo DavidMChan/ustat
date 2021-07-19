@@ -6,10 +6,10 @@
 extern crate argparse;
 #[macro_use]
 extern crate prettytable;
-use prettytable::Table;
 
-use argparse::{ArgumentParser, Collect, Store, StoreTrue};
+use argparse::{ArgumentParser, Collect, Print, Store, StoreTrue};
 use log::LevelFilter;
+use prettytable::Table;
 
 mod io;
 mod logging;
@@ -24,17 +24,17 @@ fn main() {
         .expect("Unable to initialize logger");
 
     // Setup the argument parsing
-    let mut column = 0;
+    let mut columns: Vec<usize> = vec![0];
     let mut delimiter = ",".to_string();
     let mut skip_header = false;
     let mut input_files: Vec<String> = Vec::new();
     {
         let mut ap = ArgumentParser::new();
         ap.set_description("Compute statistics for the given input file.");
-        ap.refer(&mut column).add_option(
+        ap.refer(&mut columns).add_option(
             &["-c", "--column"],
-            Store,
-            "The column to extract data from (Default: 0, runs from 0 to ...)",
+            Collect,
+            "The column(s) to extract data from (Default: 0 for all files, runs from 0 to ...)",
         );
         ap.refer(&mut delimiter).add_option(
             &["-d", "--delimiter"],
@@ -51,16 +51,30 @@ fn main() {
             Collect,
             "The input file(s) to compute statistics for (Use stdin if not specified)",
         );
+        ap.add_option(
+            &["-V", "--version"],
+            Print(env!("CARGO_PKG_VERSION").to_string()),
+            "Show version",
+        );
         ap.parse_args_or_exit();
     }
 
     // Parse the delimiter to a character
     let delimiter_char = utils::parse_delimiter_from_string(delimiter);
 
+    // Hnadle the case where there are multiple different columns.
+    if input_files.len() > 0 && columns.len() == 1 {
+        while columns.len() < input_files.len() {
+            columns.push(columns[0]);
+        }
+    } else if input_files.len() != columns.len() {
+        panic!("{} column indices passed, but there are {} files. Pass either 1 column index, or a column for each input file.", columns.len(), input_files.len());
+    }
+
     // Load the data from the input files
     let mut all_buffers = Vec::new();
     if input_files.len() > 0 {
-        for input_file in input_files.iter() {
+        for (input_file, column) in input_files.iter().zip(columns) {
             let mut buffer = Vec::new();
             io::read_from_file(
                 &input_file,
@@ -69,12 +83,12 @@ fn main() {
                 column,
                 skip_header,
             )
-            .expect(&format!("Error reading from file {}", input_file));
+            .expect(&format!("Could not read file: {}, Error", input_file));
             all_buffers.push(buffer);
         }
     } else {
         let mut buffer = Vec::new();
-        io::read_from_stdin(&mut buffer, delimiter_char, column, skip_header)
+        io::read_from_stdin(&mut buffer, delimiter_char, columns[0], skip_header)
             .expect("Error reading from stdin");
         all_buffers.push(buffer);
     }
