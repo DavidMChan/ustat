@@ -24,6 +24,27 @@ pub fn compute_stats(buffer: &std::vec::Vec<f64>) -> (f64, usize, f64, f64, f64,
     (mean, buffer.len(), median, std_dev, accum, min, max) // Return value
 }
 
+pub fn compute_anova(all_buffers: &Vec<Vec<f64>>) {
+    // Compute the sample means and overall means
+    let data: Vec<f64> = all_buffers.iter().flat_map(|s| s.iter()).copied().collect();
+
+    // Compute the correction for the mean
+    let a_cm = data.iter().sum::<f64>().powf(2.0) / data.len() as f64;
+    let a_ssr = data.iter().map(|s| s.powf(2.0)).sum::<f64>() - a_cm;
+    let a_sm: Vec<f64> = all_buffers.iter().map(|b| b.iter().sum::<f64>()).collect();
+    let a_sst = a_sm
+        .iter()
+        .zip(all_buffers.iter())
+        .map(|(s, b)| s.powf(2.0) / b.len() as f64)
+        .sum::<f64>()
+        - a_cm;
+    let a_sse = a_ssr - a_sst;
+    let a_mst = a_sst / ((all_buffers.len() - 1) as f64);
+    let a_mse = a_sse / ((data.len() - all_buffers.len()) as f64);
+    let a_f = a_mst / a_mse;
+    println!("One-Way ANOVA F-Score: {}", a_f);
+}
+
 #[cfg(test)]
 mod test {
 

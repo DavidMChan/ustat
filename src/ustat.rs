@@ -28,6 +28,7 @@ fn main() {
     let mut columns: Vec<usize> = vec![0];
     let mut delimiter = ",".to_string();
     let mut skip_header = false;
+    let mut dont_compute_anova = false;
     let mut input_files: Vec<String> = Vec::new();
     {
         let mut ap = ArgumentParser::new();
@@ -46,6 +47,11 @@ fn main() {
             &["-s", "--skip-header"],
             StoreTrue,
             "Skip the first line of the input file (Default: False)",
+        );
+        ap.refer(&mut dont_compute_anova).add_option(
+            &["--no-anova"],
+            StoreTrue,
+            "Don't compute ANOVA for the input files (one file per population) (Default: False)",
         );
         ap.refer(&mut input_files).add_argument(
             "file",
@@ -113,6 +119,9 @@ fn main() {
         let (mean, count, median, std_dev, accum, min, max) = stats::compute_stats(&data);
         table.add_row(row!["stdin", count, accum, mean, median, std_dev, min, max]);
     }
-
     table.printstd();
+
+    if !dont_compute_anova && input_files.len() > 1 {
+        stats::compute_anova(&mut all_buffers);
+    }
 }
