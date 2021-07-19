@@ -3,6 +3,9 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+extern crate statrs;
+use statrs::distribution::{ContinuousCDF, FisherSnedecor};
+
 pub fn compute_stats(buffer: &std::vec::Vec<f64>) -> (f64, usize, f64, f64, f64, f64, f64) {
     // Compute the mean, sum and standard deviation of the buffer
     let accum = buffer.iter().sum::<f64>() as f64;
@@ -39,10 +42,35 @@ pub fn compute_anova(all_buffers: &Vec<Vec<f64>>) {
         .sum::<f64>()
         - a_cm;
     let a_sse = a_ssr - a_sst;
-    let a_mst = a_sst / ((all_buffers.len() - 1) as f64);
-    let a_mse = a_sse / ((data.len() - all_buffers.len()) as f64);
+    let df_n = all_buffers.len() - 1;
+    let df_d = data.len() - all_buffers.len();
+    let a_mst = a_sst / df_n as f64;
+    let a_mse = a_sse / df_d as f64;
     let a_f = a_mst / a_mse;
-    println!("One-Way ANOVA F-Score: {}", a_f);
+
+    // Compute the critical-value
+    let f = FisherSnedecor::new(df_n as f64, df_d as f64).unwrap();
+    // Find the signficance value of our F-score with binary search
+    let mut min_p = 0.0;
+    let mut max_p = 1.0;
+    let mut current_p = 0.5;
+    while max_p - min_p > 0.0001 {
+        if f.inverse_cdf(current_p) > a_f {
+            // We can increase the probability
+            min_p = current_p;
+        } else {
+            max_p = current_p;
+        }
+        current_p = (max_p - min_p) / 2.0;
+    }
+
+    println!(
+        "One-Way ANOVA F-Score: {} (df1: {}, df2: {}, Significant to p={})",
+        a_f,
+        all_buffers.len() - 1,
+        data.len() - all_buffers.len(),
+        current_p
+    );
 }
 
 #[cfg(test)]
