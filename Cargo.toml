@@ -11,11 +11,11 @@ keywords = ["stats", "csv", "lightweight"]
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
 
-
 [dependencies]
 argparse = "0.2.2"
 regex = "1"
 log = "0.4.14"
+snailquote = "0.1.1"
 
 [[bin]]
 name = "ustat"

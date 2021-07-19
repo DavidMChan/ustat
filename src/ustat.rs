@@ -11,6 +11,7 @@ use log::LevelFilter;
 mod io;
 mod logging;
 mod stats;
+mod utils;
 
 fn main() {
     // Initialize logging
@@ -35,7 +36,7 @@ fn main() {
         ap.refer(&mut delimiter).add_option(
             &["-d", "--delimiter"],
             Store,
-            "The text delimiter to use between columns (Default: ',')",
+            "The text delimiter character to use between columns (Default: ',')",
         );
         ap.refer(&mut skip_header).add_option(
             &["-s", "--skip-header"],
@@ -50,26 +51,39 @@ fn main() {
         ap.parse_args_or_exit();
     }
 
+    // Parse the delimiter to a character
+    let delimiter_char = utils::parse_delimiter_from_string(delimiter);
+    eprintln!("Delimiter is '{}', column is '{}'", delimiter_char, column);
+
     // Load the data from the input files
-    let mut buffer = std::vec::Vec::new();
+    let mut all_buffers = std::vec::Vec::new();
+    // let mut buffer = std::vec::Vec::new();
     if input_files.len() > 0 {
         for input_file in input_files.iter() {
-            io::read_from_file(&input_file, &mut buffer, &delimiter, column, skip_header)
-                .expect(&format!("Error reading from file {}", input_file));
+            let mut buffer = std::vec::Vec::new();
+            io::read_from_file(
+                &input_file,
+                &mut buffer,
+                delimiter_char,
+                column,
+                skip_header,
+            )
+            .expect(&format!("Error reading from file {}", input_file));
+            all_buffers.push(buffer);
         }
     } else {
-        io::read_from_stdin(&mut buffer, &delimiter, column, skip_header)
+        let mut buffer = std::vec::Vec::new();
+        io::read_from_stdin(&mut buffer, delimiter_char, column, skip_header)
             .expect("Error reading from stdin");
+        all_buffers.push(buffer);
     }
 
-    if buffer.len() == 0 {
-        println!("No data to compute statistics for.");
-        return;
-    }
+    // Collect all data using flat map
+    let mut data: std::vec::Vec<f64> = all_buffers.iter().flat_map(|s| s.iter()).copied().collect();
 
     // Sort the buffer, and compute the statistics
-    buffer.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    let (mean, count, median, std_dev, accum, min, max) = stats::compute_stats(&buffer);
+    data.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let (mean, count, median, std_dev, accum, min, max) = stats::compute_stats(&data);
 
     // Print the results
     println!("Sum: {}", accum);
