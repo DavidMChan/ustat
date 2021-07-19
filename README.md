@@ -42,6 +42,6 @@ Compute basic statistics for a TSV file:
 ```
 
 Compute statistics for column 0 of file_1.csv and column 3 of file_2.csv:
-``bash
+```bash
 > ustat -c 0 -c 3 file_1.csv file_2.csv
 ```
