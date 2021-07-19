@@ -4,6 +4,9 @@
 // https://opensource.org/licenses/MIT
 
 extern crate argparse;
+#[macro_use]
+extern crate prettytable;
+use prettytable::Table;
 
 use argparse::{ArgumentParser, Collect, Store, StoreTrue};
 use log::LevelFilter;
@@ -24,7 +27,7 @@ fn main() {
     let mut column = 0;
     let mut delimiter = ",".to_string();
     let mut skip_header = false;
-    let mut input_files: std::vec::Vec<String> = std::vec::Vec::new();
+    let mut input_files: Vec<String> = Vec::new();
     {
         let mut ap = ArgumentParser::new();
         ap.set_description("Compute statistics for the given input file.");
@@ -53,14 +56,12 @@ fn main() {
 
     // Parse the delimiter to a character
     let delimiter_char = utils::parse_delimiter_from_string(delimiter);
-    eprintln!("Delimiter is '{}', column is '{}'", delimiter_char, column);
 
     // Load the data from the input files
-    let mut all_buffers = std::vec::Vec::new();
-    // let mut buffer = std::vec::Vec::new();
+    let mut all_buffers = Vec::new();
     if input_files.len() > 0 {
         for input_file in input_files.iter() {
-            let mut buffer = std::vec::Vec::new();
+            let mut buffer = Vec::new();
             io::read_from_file(
                 &input_file,
                 &mut buffer,
@@ -72,25 +73,31 @@ fn main() {
             all_buffers.push(buffer);
         }
     } else {
-        let mut buffer = std::vec::Vec::new();
+        let mut buffer = Vec::new();
         io::read_from_stdin(&mut buffer, delimiter_char, column, skip_header)
             .expect("Error reading from stdin");
         all_buffers.push(buffer);
     }
 
-    // Collect all data using flat map
-    let mut data: std::vec::Vec<f64> = all_buffers.iter().flat_map(|s| s.iter()).copied().collect();
+    // Compute the statistics, and print a nice output table.
+    let mut table = Table::new();
+    table.add_row(row![
+        "File", "Lines", "Sum", "Mean", "Median", "Stddev", "Min", "Max"
+    ]);
+    if input_files.len() > 0 {
+        for (fname, buffer) in input_files.iter().zip(&mut all_buffers) {
+            // Compute the statistics independently for each of the buffers
+            buffer.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            let (mean, count, median, std_dev, accum, min, max) = stats::compute_stats(&buffer);
+            table.add_row(row![fname, count, accum, mean, median, std_dev, min, max]);
+        }
+    } else {
+        // Only comput statistics for the first buffer with name stdin
+        let mut data: Vec<f64> = all_buffers.iter().flat_map(|s| s.iter()).copied().collect();
+        data.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let (mean, count, median, std_dev, accum, min, max) = stats::compute_stats(&data);
+        table.add_row(row!["stdin", count, accum, mean, median, std_dev, min, max]);
+    }
 
-    // Sort the buffer, and compute the statistics
-    data.sort_by(|a, b| a.partial_cmp(b).unwrap());
-    let (mean, count, median, std_dev, accum, min, max) = stats::compute_stats(&data);
-
-    // Print the results
-    println!("Sum: {}", accum);
-    println!("Count: {}", count);
-    println!("Mean: {}", mean);
-    println!("Median: {}", median);
-    println!("Stddev: {}", std_dev);
-    println!("Min: {}", min);
-    println!("Max: {}", max);
+    table.printstd();
 }
