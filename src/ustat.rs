@@ -60,7 +60,7 @@ fn main() {
         );
         ap.add_option(
             &["-V", "--version"],
-            Print(env!("CARGO_PKG_VERSION").to_string()),
+            Print((&"ustat version 0.1.0"[..]).to_string()),
             "Show version",
         );
         ap.parse_args_or_exit();
