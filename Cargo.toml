@@ -17,6 +17,7 @@ regex = "1"
 log = "0.4.14"
 snailquote = "0.1.1"
 prettytable-rs = "0.8.0"
+quickersort = "3.0.1"
 
 [[bin]]
 name = "ustat"

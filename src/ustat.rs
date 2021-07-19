@@ -6,6 +6,7 @@
 extern crate argparse;
 #[macro_use]
 extern crate prettytable;
+extern crate quickersort;
 
 use argparse::{ArgumentParser, Collect, Print, Store, StoreTrue};
 use log::LevelFilter;
@@ -101,14 +102,14 @@ fn main() {
     if input_files.len() > 0 {
         for (fname, buffer) in input_files.iter().zip(&mut all_buffers) {
             // Compute the statistics independently for each of the buffers
-            buffer.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            quickersort::sort_by(&mut buffer[..], &|a, b| a.partial_cmp(b).unwrap());
             let (mean, count, median, std_dev, accum, min, max) = stats::compute_stats(&buffer);
             table.add_row(row![fname, count, accum, mean, median, std_dev, min, max]);
         }
     } else {
         // Only comput statistics for the first buffer with name stdin
         let mut data: Vec<f64> = all_buffers.iter().flat_map(|s| s.iter()).copied().collect();
-        data.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        quickersort::sort_by(&mut data[..], &|a, b| a.partial_cmp(b).unwrap());
         let (mean, count, median, std_dev, accum, min, max) = stats::compute_stats(&data);
         table.add_row(row!["stdin", count, accum, mean, median, std_dev, min, max]);
     }
