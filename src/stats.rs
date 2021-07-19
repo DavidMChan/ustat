@@ -54,7 +54,7 @@ pub fn compute_anova(all_buffers: &Vec<Vec<f64>>) {
     let mut min_p = 0.0;
     let mut max_p = 1.0;
     let mut current_p = 0.5;
-    while max_p - min_p > 0.0001 {
+    while max_p - min_p > 0.000001 {
         if f.inverse_cdf(current_p) > a_f {
             // We can increase the probability
             min_p = current_p;
@@ -65,7 +65,7 @@ pub fn compute_anova(all_buffers: &Vec<Vec<f64>>) {
     }
 
     println!(
-        "One-Way ANOVA F-Score: {} (df1: {}, df2: {}, Significant to p={})",
+        "One-Way ANOVA F-Score: {} (df1: {}, df2: {}, Significant to p={}±1e-6)",
         a_f,
         all_buffers.len() - 1,
         data.len() - all_buffers.len(),
