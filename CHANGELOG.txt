@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.2.0] - 2021-07-19
+### Added
+- Added ANOVA computation between input files
+- Added ability to specify custom columns for multiple files
+- Added --version operator
+
+### Changed
+- Improved performance by up to 4x (Faster than ministat now)
+- Improved performance for sorted input files
+- Improved output formatting
+
+
 ## [0.1.0] - 2021-07-12
 ### Added
 - Initial release
