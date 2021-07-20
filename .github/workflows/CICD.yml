@@ -21,12 +21,11 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
 
-      - name: Install rust toolchain (v${{ env.MIN_SUPPORTED_RUST_VERSION }})
+      - name: Install rust (nightly) toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ env.MIN_SUPPORTED_RUST_VERSION }}
-          default: true
-          profile: minimal # minimal component installation (ie, no documentation)
+          toolchain: nightly
+          override: true
 
       - name: Run tests
         uses: actions-rs/cargo@v1
