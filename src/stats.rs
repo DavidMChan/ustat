@@ -54,16 +54,14 @@ pub fn compute_anova(all_buffers: &Vec<Vec<f64>>) {
     let mut min_p = 0.0;
     let mut max_p = 1.0;
     let mut current_p = 0.5;
-    let mut iterations = 0;
-    while max_p - min_p > 0.000001 && iterations < 100 {
-        if f.inverse_cdf(current_p) > a_f {
+    while max_p - min_p > 0.000001 {
+        if f.inverse_cdf(current_p) >= a_f {
             // We can increase the probability
             min_p = current_p;
         } else {
             max_p = current_p;
         }
-        current_p = (max_p - min_p) / 2.0;
-        iterations += 1;
+        current_p = (max_p - min_p) / 2.0 + min_p;
     }
 
     println!(

@@ -72,11 +72,16 @@ fn main() {
     // Hnadle the case where there are multiple different columns.
     if input_files.len() == 0 && columns.len() <= 1 {
         columns.push(columns[0]);
+    } else if input_files.len() != columns.len() && columns.len() == 1 {
+        while input_files.len() > columns.len() {
+            columns.push(columns[0]);
+        }
     } else if input_files.len() != columns.len() {
         panic!("{} column indices passed, but there are {} files. Pass either 1 column index, or a column for each input file.", columns.len(), input_files.len());
     }
 
     // Load the data from the input files
+    println!("{} {}", input_files.len(), columns.len());
     let mut all_buffers = Vec::new();
     if input_files.len() > 0 {
         for (input_file, column) in input_files.iter().zip(columns) {
