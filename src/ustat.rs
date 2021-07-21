@@ -70,10 +70,8 @@ fn main() {
     let delimiter_char = utils::parse_delimiter_from_string(delimiter);
 
     // Hnadle the case where there are multiple different columns.
-    if input_files.len() > 0 && columns.len() == 1 {
-        while columns.len() < input_files.len() {
-            columns.push(columns[0]);
-        }
+    if input_files.len() == 0 && columns.len() <= 1 {
+        columns.push(columns[0]);
     } else if input_files.len() != columns.len() {
         panic!("{} column indices passed, but there are {} files. Pass either 1 column index, or a column for each input file.", columns.len(), input_files.len());
     }
