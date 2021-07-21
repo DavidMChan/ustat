@@ -35,7 +35,7 @@ jobs:
       - name: Build debug release
         uses: actions-rs/cargo@v1
         with:
-          command: Build
+          command: build
 
       - name: Run simple STDIN tests
         run: |

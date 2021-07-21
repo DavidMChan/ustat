@@ -60,7 +60,7 @@ fn main() {
         );
         ap.add_option(
             &["-V", "--version"],
-            Print((&"ustat version 0.2.1"[..]).to_string()),
+            Print((&"ustat version 0.2.2"[..]).to_string()),
             "Show version",
         );
         ap.parse_args_or_exit();
