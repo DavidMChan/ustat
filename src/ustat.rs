@@ -81,7 +81,6 @@ fn main() {
     }
 
     // Load the data from the input files
-    println!("{} {}", input_files.len(), columns.len());
     let mut all_buffers = Vec::new();
     if input_files.len() > 0 {
         for (input_file, column) in input_files.iter().zip(columns) {

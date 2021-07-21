@@ -39,5 +39,5 @@ jobs:
 
       - name: Run simple STDIN tests
         run: |
-          - seq 100 | ./target/debug/ustat
-          - ./target/debug/ustat <(seq 100) <(seq 100)
+          seq 100 | ./target/debug/ustat
+          ./target/debug/ustat <(seq 100) <(seq 100)
