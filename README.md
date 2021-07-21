@@ -1,6 +1,16 @@
 # ustat
 A micro-statistics program (like ministat) written in Rust which computes the sum, mean, median, min, max, standard deviation and a one-way ANOVA of a set of input files.
 
+Installation
+```
+> cargo install ustat
+```
+
+If you don't have cargo, you can easily install it with:
+```
+> curl https://sh.rustup.rs -sSf | sh && source $HOME/.cargo/env
+```
+
 ```
 Usage:
   ustat [OPTIONS] [FILE ...]
@@ -28,7 +38,7 @@ Optional arguments:
 
 Compute basic statistics for column 0 of a CSV:
 ```bash
-> cat file.csv | ustat 
+> cat file.csv | ustat
 ```
 
 Compute basic statics and an ANOVA for three files (column 0 for each CSV file):
