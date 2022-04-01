@@ -1,4 +1,6 @@
 # ustat
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDavidMChan%2Fustat.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FDavidMChan%2Fustat?ref=badge_shield)
+
 A micro-statistics program (like ministat) written in Rust which computes the sum, mean, median, min, max, standard deviation and a one-way ANOVA of a set of input files.
 
 Installation
@@ -55,3 +57,7 @@ Compute statistics for column 0 of file_1.csv and column 3 of file_2.csv:
 ```bash
 > ustat -c 0 -c 3 file_1.csv file_2.csv
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDavidMChan%2Fustat.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FDavidMChan%2Fustat?ref=badge_large)
